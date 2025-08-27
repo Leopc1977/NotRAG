@@ -37,8 +37,10 @@ python -m spacy download en_core_web_md
 
 ```bash
 .
-├── datas/                # Folder containing your text documents
-├── mini_rag.py           # Main script
+├── datas/                     # Folder containing your text documents
+├── mini_rag.py                # Main script
+├── LICENSE.md                 # License
+├── same-but-with-langchain.py # mini_rag.py but with Langchain
 └── README.md
 ```
 
