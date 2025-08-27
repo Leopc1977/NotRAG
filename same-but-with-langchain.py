@@ -55,8 +55,6 @@ llm = OpenAI(
     api_key=LLM_API_KEY,
     max_tokens=MAX_TOKENS
 )
-
 answer = llm.invoke(prompt)
-
 print("\n==== ANSWER ====")
 print(answer)

@@ -117,16 +117,13 @@ for filename in top_documents.keys():
 prompt = "\n".join(prompt_lines) + f"\n\nQuestion: {QUESTION}"
 
 # 7. Call LLM to get the answer
-def call_llm(prompt, model, max_tokens):
-    completion = client.chat.completions.create(
-        model=model,
-        messages=[
-            {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": prompt}
-        ],
-        max_tokens=max_tokens
-    )
-    return completion.choices[0].message.content
-
-answer = call_llm(prompt, MODEL_NAME, MAX_TOKENS)
+completion = client.chat.completions.create(
+    model=MODEL_NAME,
+    messages=[
+        {"role": "system", "content": "You are a helpful assistant."},
+        {"role": "user", "content": prompt}
+    ],
+    max_tokens=MAX_TOKENS
+)
+answer = completion.choices[0].message.content
 print(answer)
