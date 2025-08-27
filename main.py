@@ -1,14 +1,23 @@
-from os import listdir
+from os import listdir, environ
 from os.path import join
 from spacy import load
 from math import sqrt
+from openai import OpenAI
 
-# Constants
+# --- OpenAI API Configuration ---
+API_KEY = environ.get("OPENAI_API_KEY", "")
+BASE_URL = "http://127.0.0.1:8081/v1"
+
+# --- Constants ---
 THRESHOLD_SIMILARITY = 0.1  # Minimum similarity to consider a match
 TOP_K = 3  # Number of top results to return
 SPACY_MODEL = "en_core_web_md"  # SpaCy model used for embeddings
 POS_FILTER = ["NOUN", "PROPN", "VERB", "ADJ", "ADV", "NUM", "X"]  # Allowed POS tags
 DATA_PATH = "./datas"  # Folder containing the documents
+MAX_TOKENS = 300 # Maximum number of tokens the LLM should generate for an answer
+
+# Load OPENAI client
+client = OpenAI(api_key=API_KEY, base_url=BASE_URL)
 
 # Load the SpaCy NLP model
 nlp = load(SPACY_MODEL)
@@ -104,4 +113,18 @@ for filename in top_documents.keys():
 
 # Combine context and question into final prompt
 prompt = "\n".join(prompt_lines) + f"\n\nQuestion: {question}"
-print(prompt)
+
+# 7. Call LLM to get the answer
+def call_llm(prompt, model="gpt-4", max_tokens=MAX_TOKENS):
+    completion = client.chat.completions.create(
+        model=model,
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": prompt}
+        ],
+        max_tokens=max_tokens
+    )
+    return completion.choices[0].message.content
+
+answer = call_llm(prompt)
+print(answer)

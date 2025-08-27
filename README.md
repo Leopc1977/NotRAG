@@ -13,6 +13,7 @@ This project demonstrates a simple RAG pipeline using Python and SpaCy. It retri
 - Computes concept frequency vectors per document.
 - Computes cosine similarity between a question and documents.
 - Returns top relevant documents to construct a context prompt.
+- Calls an LLM to generate answers based on the retrieved context.
 
 ---
 
@@ -21,11 +22,12 @@ This project demonstrates a simple RAG pipeline using Python and SpaCy. It retri
 - Python 3.9+
 - SpaCy
 - spaCy model `en_core_web_md`
+- OpenAI Python client (or equivalent for LLM access)
 
 Install dependencies with:
 
 ```bash
-pip install spacy
+pip install spacy openai
 python -m spacy download en_core_web_md
 ```
 
@@ -46,6 +48,7 @@ python -m spacy download en_core_web_md
 
 1. Place your documents (plain text) in the datas/ folder.
 1. Update question in the script or modify to take user input.
+1. Ensure your LLM API client (client) is properly initialized.
 1. Run the script:
 ```bash
 python mini_rag.py
@@ -60,7 +63,7 @@ python mini_rag.py
 - `THRESHOLD_SIMILARITY`: Minimum similarity to include a document.
 - `SPACY_MODEL`: SpaCy model for tokenization and embeddings.
 - `TOP_K`: Maximum number of documents to include in the prompt (default: 3).
-
+- `MAX_TOKENS`: Maximum number of tokens for LLM output (par défaut dans la fonction call_llm).
 ---
 
 ## Notes
