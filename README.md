@@ -64,6 +64,7 @@ python mini_rag.py
 - `SPACY_MODEL`: SpaCy model for tokenization and embeddings.
 - `TOP_K`: Maximum number of documents to include in the prompt (default: 3).
 - `MAX_TOKENS`: Maximum number of tokens for LLM output (par défaut dans la fonction call_llm).
+
 ---
 
 ## Notes
@@ -71,6 +72,23 @@ python mini_rag.py
 - Currently uses raw frequency vectors; consider TF-IDF for better weighting.
 - Only the top TOP_K most similar documents are included in the prompt.
 - Large documents may need truncation for prompt limits.
+
+---
+
+## Langchain RAG Equivalent
+
+`same-but-with-langchain.py` demonstrates the same workflow as main.py, but implemented with **LangChain**.
+
+### Requirements
+
+- Python 3.12+
+- Install dependencies:
+
+    ```bash
+        pip3 install langchain-core langchain-community langchain-openai spacy faiss-cpu
+        python3 -m spacy download en_core_web_md  # if using SpaCy embeddings
+
+    ```
 
 ---
 

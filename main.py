@@ -5,19 +5,22 @@ from math import sqrt
 from openai import OpenAI
 
 # --- OpenAI API Configuration ---
-API_KEY = environ.get("OPENAI_API_KEY", "")
-BASE_URL = "http://127.0.0.1:8081/v1"
+LLM_BASE_URL = "http://127.0.0.1:8081/v1"
+LLM_API_KEY =  environ.get("OPENAI_API_KEY", "dummy_key_for_local_llm")
+MODEL_NAME = "deepseek-llm-7b-chat.Q4_K_M"
 
 # --- Constants ---
-THRESHOLD_SIMILARITY = 0.1  # Minimum similarity to consider a match
-TOP_K = 3  # Number of top results to return
 SPACY_MODEL = "en_core_web_md"  # SpaCy model used for embeddings
 POS_FILTER = ["NOUN", "PROPN", "VERB", "ADJ", "ADV", "NUM", "X"]  # Allowed POS tags
 DATA_PATH = "./datas"  # Folder containing the documents
+THRESHOLD_SIMILARITY = 0.1  # Minimum similarity to consider a match
+TOP_K = 3  # Number of top results to include
 MAX_TOKENS = 300 # Maximum number of tokens the LLM should generate for an answer
 
+QUESTION = "Which planet has the most moons?"
+
 # Load OPENAI client
-client = OpenAI(api_key=API_KEY, base_url=BASE_URL)
+client = OpenAI(api_key=LLM_API_KEY, base_url=LLM_BASE_URL)
 
 # Load the SpaCy NLP model
 nlp = load(SPACY_MODEL)
@@ -54,7 +57,7 @@ for filename, concepts in document_concepts.items():
     for concept in concept_list:
         concepts.setdefault(concept, 0)
 
-# 2. Vectorize documents: normalize each concept by its global count
+# 2. Embedding documents: normalize each concept by its global count
 docs_vector = {
     file_name:[] for file_name in filenames
 }
@@ -64,8 +67,7 @@ for filename, concepts in document_concepts.items():
         docs_vector[filename].append(concepts[concept] / global_concept_count[concept])
 
 # 3. Vectorize a question
-question = "Which planet has the most moons?"
-question_doc = nlp(question.lower())
+question_doc = nlp(QUESTION.lower())
 concept_index = {concept: idx for idx, concept in enumerate(concept_list)}
 question_vector = [0] * len(concept_list)
 
@@ -102,7 +104,7 @@ if len(filtered_by_threshold) <= TOP_K:
 else:
     top_documents = dict(sorted(filtered_by_threshold.items(), key=lambda item: item[1], reverse=True)[:TOP_K])
 
-# 6. Create prompt
+# 6. Create context prompt
 prompt_lines = ["Context for answering the question:"]
 for filename in top_documents.keys():
     file_path = join(DATA_PATH, filename)
@@ -112,10 +114,10 @@ for filename in top_documents.keys():
             prompt_lines.append(f"- {filename}:\n{content}")
 
 # Combine context and question into final prompt
-prompt = "\n".join(prompt_lines) + f"\n\nQuestion: {question}"
+prompt = "\n".join(prompt_lines) + f"\n\nQuestion: {QUESTION}"
 
 # 7. Call LLM to get the answer
-def call_llm(prompt, model="gpt-4", max_tokens=MAX_TOKENS):
+def call_llm(prompt, model, max_tokens):
     completion = client.chat.completions.create(
         model=model,
         messages=[
@@ -126,5 +128,5 @@ def call_llm(prompt, model="gpt-4", max_tokens=MAX_TOKENS):
     )
     return completion.choices[0].message.content
 
-answer = call_llm(prompt)
+answer = call_llm(prompt, MODEL_NAME, MAX_TOKENS)
 print(answer)
